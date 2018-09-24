@@ -6,7 +6,7 @@ log_dir = './log/tensorflow-demo'
 
 # Training Data
 train_X   = np.arange(1, 30)
-train_Y   = 2 * train_X
+train_Y   = train_X ** 2
 
 def new_summary_writer(graph):
   if not os.path.exists(log_dir): os.makedirs(log_dir)

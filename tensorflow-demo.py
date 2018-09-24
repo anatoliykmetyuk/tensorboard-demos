@@ -48,4 +48,9 @@ with tf.Session(graph = g) as sess:
       log_writer.add_summary(summary, epoch)
       log_writer.flush()
 
+  train_pred = sess.run(pred, feed_dict = {X: train_X})
+
   print('Optimization Finished!')
+  print('True values: {}'.format(train_Y))
+  print('Predicted values: {}'.format(train_pred))
+  print('Deviation from true values: {}'.format(train_Y - train_pred))
