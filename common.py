@@ -1,9 +1,11 @@
 import os
+import numpy as np
+import tensorflow as tf
 
 log_dir = './log/tensorflow-demo'
 
 # Training Data
-train_X   = numpy.arange(1, 30)
+train_X   = np.arange(1, 30)
 train_Y   = 2 * train_X
 
 def new_summary_writer(graph):

@@ -1,11 +1,11 @@
-import tensorflow as tf
-import matplotlib.pyplot as plt
+#!/usr/bin/env python
 
+import tensorflow as tf
+import numpy      as np
 from common import new_summary_writer, train_X, train_Y
 
-
 # Parameters
-learning_rate   = 0.01
+learning_rate   = 0.0001
 training_epochs = 1000
 display_step    = 50
 
@@ -16,8 +16,8 @@ with g.as_default():
   Y = tf.placeholder("float")
 
   # Model
-  W    = tf.Variable(name="weight")
-  b    = tf.Variable(name="bias"  )
+  W    = tf.get_variable("weight", (1), np.float32, initializer=tf.random_uniform_initializer)
+  b    = tf.get_variable("bias"  , (1), np.float32, initializer=tf.random_uniform_initializer)
   pred = tf.add(tf.multiply(X, W), b)
   init = tf.global_variables_initializer()
 
@@ -27,8 +27,8 @@ with g.as_default():
 
   # Summaries
   tf.summary.scalar    ('loss'   , cost)
-  tf.summary.historgram('weights', W   )
-  tf.summary.historgram('biases' , b   )
+  tf.summary.histogram('weights', W   )
+  tf.summary.histogram('biases' , b   )
   summaries  = tf.summary.merge_all()
   log_writer = new_summary_writer(g)
 
@@ -49,9 +49,3 @@ with tf.Session(graph = g) as sess:
       log_writer.flush()
 
   print('Optimization Finished!')
-
-  # Graphic display
-  plt.plot(train_X, train_Y       , 'ro', label='Original data')
-  plt.plot(train_X, sess.run(pred),       label='Fitted line'  )
-  plt.legend()
-  plt.show()
