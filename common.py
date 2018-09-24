@@ -5,8 +5,9 @@ import tensorflow as tf
 log_dir = './log/tensorflow-demo'
 
 # Training Data
-train_X   = np.arange(1, 30)
-train_Y   = train_X ** 2
+samples_num = 30
+train_X     = np.arange(0, samples_num).reshape((samples_num, 1))
+train_Y     = (train_X ** 2).reshape(samples_num, 1)
 
 def new_summary_writer(graph):
   if not os.path.exists(log_dir): os.makedirs(log_dir)

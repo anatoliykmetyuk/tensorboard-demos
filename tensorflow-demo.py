@@ -2,23 +2,34 @@
 
 import tensorflow as tf
 import numpy      as np
-from common import new_summary_writer, train_X, train_Y
+from common import new_summary_writer, train_X, train_Y, samples_num
 
 # Parameters
-learning_rate   = 0.0001
-training_epochs = 1000
-display_step    = 50
+learning_rate   = 0.000001
+training_epochs = 50000
+display_step    = 1000
+
+hidden_size = 128
 
 g = tf.Graph()
 with g.as_default():
   # Inputs
-  X = tf.placeholder("float")
-  Y = tf.placeholder("float")
+  X = tf.placeholder(np.float32, (samples_num, 1))  # *, 1
+  Y = tf.placeholder(np.float32, (samples_num, 1))  # *, 1
 
   # Model
-  W    = tf.get_variable("weight", (1), np.float32, initializer=tf.random_uniform_initializer)
-  b    = tf.get_variable("bias"  , (1), np.float32, initializer=tf.random_uniform_initializer)
-  pred = tf.add(tf.multiply(X, W), b)
+  # 1, X
+  W_1 = tf.get_variable("W_1", (1, hidden_size), np.float32, initializer=tf.random_uniform_initializer)
+  b_1 = tf.get_variable("b_1", (1, hidden_size), np.float32, initializer=tf.random_uniform_initializer)
+
+  W_2 = tf.get_variable("W_2", (hidden_size, 1), np.float32, initializer=tf.random_uniform_initializer)
+  b_2 = tf.get_variable("b_2", (1             ), np.float32, initializer=tf.random_uniform_initializer)
+
+  hidden = tf.nn.relu(tf.matmul(X, W_1) + b_1)
+  pred   = tf.matmul(hidden, W_2) + b_2
+
+
+  # tf.add(tf.multiply(tf.add(tf.multiply(X, W), b), W_h), b_h)
   init = tf.global_variables_initializer()
 
   # Objective
@@ -26,9 +37,12 @@ with g.as_default():
   optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
 
   # Summaries
-  tf.summary.scalar    ('loss'   , cost)
-  tf.summary.histogram('weights', W   )
-  tf.summary.histogram('biases' , b   )
+  tf.summary.scalar   ('loss', cost)
+  tf.summary.histogram('W_1' , W_1 )
+  tf.summary.histogram('b_1' , b_1 )
+  tf.summary.histogram('W_2' , W_2 )
+  tf.summary.histogram('b_2' , b_2 )
+
   summaries  = tf.summary.merge_all()
   log_writer = new_summary_writer(g)
 
@@ -43,14 +57,13 @@ with tf.Session(graph = g) as sess:
     # Log summaries
     if epoch % display_step == 0:
       summary, c = sess.run([summaries, cost], feed_dict={X: train_X, Y:train_Y})
-      print('Epoch: {}; Cost: {}; W: {}; b: {}'
-        .format(epoch, c, sess.run(W), sess.run(b)))
+      print('Epoch: {};\tCost: {}'.format(epoch, c))
       log_writer.add_summary(summary, epoch)
       log_writer.flush()
 
   train_pred = sess.run(pred, feed_dict = {X: train_X})
 
   print('Optimization Finished!')
-  print('True values: {}'.format(train_Y))
-  print('Predicted values: {}'.format(train_pred))
-  print('Deviation from true values: {}'.format(train_Y - train_pred))
+  print('True values: {}'.format(train_Y.flatten()))
+  print('Predicted values: {}'.format(train_pred.flatten()))
+  print('Deviation from true values: {}'.format(train_Y.flatten() - train_pred.flatten()))
