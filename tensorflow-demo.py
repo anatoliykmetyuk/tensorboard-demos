@@ -19,7 +19,6 @@ with g.as_default():
   Y = tf.placeholder(np.float32, (samples_num, 1))  # *, 1
 
   # Model
-  # 1, X
   W_1 = tf.get_variable("W_1", (1, hidden_size), np.float32, initializer=tf.random_uniform_initializer)
   b_1 = tf.get_variable("b_1", (1, hidden_size), np.float32, initializer=tf.random_uniform_initializer)
 
@@ -29,8 +28,6 @@ with g.as_default():
   hidden = tf.nn.relu(tf.matmul(X, W_1) + b_1)
   pred   = tf.matmul(hidden, W_2) + b_2
 
-
-  # tf.add(tf.multiply(tf.add(tf.multiply(X, W), b), W_h), b_h)
   init = tf.global_variables_initializer()
 
   # Objective
