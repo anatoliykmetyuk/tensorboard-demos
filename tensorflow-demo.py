@@ -2,14 +2,15 @@
 
 import tensorflow as tf
 import numpy      as np
-from common import new_summary_writer, train_X, train_Y, samples_num
+from common import new_run_log_dir, train_X, train_Y, samples_num, print_summary
 
 # Parameters
 learning_rate   = 0.000001
-training_epochs = 50000
-display_step    = 1000
+training_epochs = 500
+display_step    = 10
+hidden_size     = 128
 
-hidden_size = 128
+log_dir = new_run_log_dir('tensorflow-demo')
 
 g = tf.Graph()
 with g.as_default():
@@ -44,7 +45,7 @@ with g.as_default():
   tf.summary.histogram('b_2' , b_2 )
 
   summaries  = tf.summary.merge_all()
-  log_writer = new_summary_writer(g)
+  log_writer = tf.summary.FileWriter(log_dir, graph = g)
 
 # Training
 with tf.Session(graph = g) as sess:
@@ -61,9 +62,5 @@ with tf.Session(graph = g) as sess:
       log_writer.add_summary(summary, epoch)
       log_writer.flush()
 
-  train_pred = sess.run(pred, feed_dict = {X: train_X})
-
-  print('Optimization Finished!')
-  print('True values: {}'.format(train_Y.flatten()))
-  print('Predicted values: {}'.format(train_pred.flatten()))
-  print('Deviation from true values: {}'.format(train_Y.flatten() - train_pred.flatten()))
+  predicted = sess.run(pred, feed_dict = {X: train_X})
+  print_summary(train_Y, predicted)
